@@ -22,6 +22,7 @@ class BaseExp(metaclass=ABCMeta):
         self.print_interval = 100
         self.eval_interval = 10
         self.dataset = None
+        self.device = "cpu"
 
     @abstractmethod
     def get_model(self) -> Module:

@@ -17,6 +17,8 @@ class Exp(BaseExp):
     def __init__(self):
         super().__init__()
 
+        self.device = torch.get_default_device()
+
         # ---------------- model config ---------------- #
         # detect classes number of model
         self.num_classes = 80
@@ -222,7 +224,7 @@ class Exp(BaseExp):
         return train_loader
 
     def random_resize(self, data_loader, epoch, rank, is_distributed):
-        tensor = torch.LongTensor(2).cuda()
+        tensor = torch.tensor(2).to(self.device)
 
         if rank == 0:
             size_factor = self.input_size[1] * 1.0 / self.input_size[0]
@@ -337,6 +339,7 @@ class Exp(BaseExp):
             dataloader=self.get_eval_loader(batch_size, is_distributed,
                                             testdev=testdev, legacy=legacy),
             img_size=self.test_size,
+            device=self.device,
             confthre=self.test_conf,
             nmsthre=self.nmsthre,
             num_classes=self.num_classes,
@@ -346,6 +349,7 @@ class Exp(BaseExp):
     def get_trainer(self, args):
         from yolox.core import Trainer
         trainer = Trainer(self, args)
+        trainer.device = self.device
         # NOTE: trainer shouldn't be an attribute of exp object
         return trainer
 

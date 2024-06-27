@@ -208,7 +208,7 @@ class YOLOXHead(nn.Module):
                 [x.flatten(start_dim=2) for x in outputs], dim=2
             ).permute(0, 2, 1)
             if self.decode_in_inference:
-                return self.decode_outputs(outputs, dtype=xin[0].type())
+                return self.decode_outputs(outputs, dtype=xin[0].dtype)
             else:
                 return outputs
 
@@ -599,7 +599,7 @@ class YOLOXHead(nn.Module):
             obj_output = self.obj_preds[k](reg_feat)
 
             output = torch.cat([reg_output, obj_output, cls_output], 1)
-            output, grid = self.get_output_and_grid(output, k, stride_this_level, xin[0].type())
+            output, grid = self.get_output_and_grid(output, k, stride_this_level, xin[0].dtype)
             x_shifts.append(grid[:, :, 0])
             y_shifts.append(grid[:, :, 1])
             expanded_strides.append(

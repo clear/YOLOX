@@ -242,8 +242,13 @@ class YOLOXHead(nn.Module):
             shape = grid.shape[:2]
             strides.append(torch.full((*shape, 1), stride))
 
-        grids = torch.cat(grids, dim=1).type(dtype)
-        strides = torch.cat(strides, dim=1).type(dtype)
+        # Ensure all the arrays are on the same device
+        # NOTE: however the post processing step uses torch methods (nms) not implemented for mps
+        #       so just do this processing on cpu when running on mps
+        device = outputs.device if not outputs.device.type.startswith("mps") else "cpu"
+        grids = torch.cat(grids, dim=1).to(dtype=dtype, device=device)
+        strides = torch.cat(strides, dim=1).to(dtype=dtype, device=device)
+        outputs = outputs.to(device)
 
         outputs = torch.cat([
             (outputs[..., 0:2] + grids) * strides,
